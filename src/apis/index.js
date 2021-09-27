@@ -1,16 +1,13 @@
 import axios from 'axios';
 
-export default {
+// utilities
+import constants from '../constants';
 
-  SERVER_URL: 'http://localhost:8081',
-  UNSPLASH: {
-    SERVER_URL: 'https://api.unsplash.com',
-    KEY: 'Client-ID _wPDVNUmeDRW1AaUi-SE9CyzWD-imab1x3MOqvzuvcc'
-  },
+export default {
 
   async getTopics() {
     try {
-      const axiosInstance = axios.create({ baseURL: this.SERVER_URL });
+      const axiosInstance = axios.create({ baseURL: constants.SERVER_URL });
       const res = (await axiosInstance.get('/topics')).data;
       return res;
     } catch (err) {
@@ -21,7 +18,7 @@ export default {
 
   async getCount(topic) {
     try {
-      const axiosInstance = axios.create({ baseURL: this.SERVER_URL });
+      const axiosInstance = axios.create({ baseURL: constants.SERVER_URL });
       const res = (await axiosInstance.get(
         '/count',
         { params: { topic } }
@@ -35,10 +32,10 @@ export default {
 
   async getPhotos(topic) {
     try {
-      const axiosInstance = axios.create({ baseURL: this.UNSPLASH.SERVER_URL });
+      const axiosInstance = axios.create({ baseURL: constants.UNSPLASH.SERVER_URL });
       const res = (await axiosInstance.get(
         `/topics/${topic}/photos`,
-        { headers: { Authorization: this.UNSPLASH.KEY } }
+        { headers: { Authorization: constants.UNSPLASH.KEY } }
       )).data;
       return res;
     } catch (err) {
