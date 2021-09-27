@@ -6,7 +6,8 @@ import { Container, Row, Col, Dropdown, ListGroup, Carousel } from '../../styles
 // styling
 import './Content.css';
 
-// components
+// models
+import Image from '../../models/image';
 
 // variables
 const DRAGGABLE_TYPES = {
@@ -21,16 +22,16 @@ export class Content extends React.Component {
     this.state = {
       dropdownSelected: 'Select Topic',
       fileList: [
-        'Landscape-1.png',
-        'Landscape-2.png',
-        'Landscape-3.png',
-        'Landscape-4.png',
-        'Landscape-5.png',
-        'Landscape-6.png',
-        'Landscape-7.png',
-        'Landscape-8.png',
-        'Landscape-9.png',
-        'Landscape-10.png'
+        new Image('Landscape-1.png', 'zxd'),
+        new Image('Landscape-2.png', 'dsa'),
+        new Image('Landscape-3.png', 'rer'),
+        new Image('Landscape-4.png', 'ggg'),
+        new Image('Landscape-5.png', 'hgt'),
+        new Image('Landscape-6.png', 'sdf'),
+        new Image('Landscape-7.png', 'lkj'),
+        new Image('Landscape-8.png', 'uio'),
+        new Image('Landscape-9.png', 'cvb'),
+        new Image('Landscape-10.png', 'rfg')
       ],
       carouselPreviewImages: [],
     }
@@ -53,7 +54,7 @@ export class Content extends React.Component {
       return;
     }
     const { fileList } = this.state;
-    fileList.push(data.title);
+    fileList.push(new Image(data.image.title, data.image.url));
     this.setState({ fileList });
     console.log('STATE UPDATED!', this.state.fileList);
   }
@@ -67,9 +68,7 @@ export class Content extends React.Component {
       return;
     }
     const { carouselPreviewImages } = this.state;
-    carouselPreviewImages.push({
-      title: data.title
-    });
+    carouselPreviewImages.push(new Image(data.image.title, data.image.url));
     this.setState({ carouselPreviewImages });
     console.log('STATE UPDATED!', this.state.carouselPreviewImages);
   }
@@ -78,8 +77,9 @@ export class Content extends React.Component {
     // add draggable to the file-list
     Array.from(document.getElementsByClassName('list-group-item')).forEach((listGroupItem) => {
       listGroupItem.addEventListener("dragstart", (ev) => {
+        // console.log('TARGET', ev, ev.target.attributes['data-url'].value);
         ev.dataTransfer.setData("application/json", JSON.stringify({
-          title: ev.target.innerText,
+          image: new Image(ev.target.innerText, ev.target.attributes['data-url'].value),
           source: DRAGGABLE_TYPES.LEFT_PANE
         }));
         console.log(ev.target.innerText);
@@ -91,20 +91,20 @@ export class Content extends React.Component {
     // add draggable to the carousel-picker
     Array.from(document.getElementsByClassName('carousel-preview-container')).forEach((carouselPreviewItem) => {
       carouselPreviewItem.addEventListener("dragstart", (ev) => {
-        console.log(ev);
+        // console.log('TARGET', ev, ev.target);
         ev.dataTransfer.setData("application/json", JSON.stringify({
-          title: ev.srcElement.children[1].innerText,
+          image: new Image(ev.srcElement.children[1].innerText, ev.target.attributes['data-url'].value),
           source: DRAGGABLE_TYPES.RIGHT_PANE
         }));
       });
     });
   }
 
-  getCarouselImagePreviewItem(imageName) {
+  getCarouselImagePreviewItem(carouselImage) {
     return (
-      <div className="carousel-preview-container" draggable="true">
+      <div className="carousel-preview-container" draggable="true" data-url={carouselImage.url}>
         <div className="carousel-preview-image"></div>
-        <h7 className="carousel-preview-image-title">{imageName}</h7>
+        <h7 className="carousel-preview-image-title">{carouselImage.title}</h7>
       </div>
     )
   }
@@ -144,8 +144,8 @@ export class Content extends React.Component {
                 <h6>Files</h6>
                 <ListGroup onDragOver={this.dragOver} onDrop={this.dropOverFilePicker}>
                   {
-                    this.state.fileList.map((fileName) =>
-                      <ListGroup.Item draggable="true">{fileName}</ListGroup.Item>
+                    this.state.fileList.map((imageFile) =>
+                      <ListGroup.Item draggable="true" data-url={imageFile.url}>{imageFile.title}</ListGroup.Item>
                     )
                   }
                 </ListGroup>
@@ -201,7 +201,7 @@ export class Content extends React.Component {
                 <Col id="coursel-images-drop-container" onDragOver={this.dragOver} onDrop={this.dropOverCarouselPicker}>
                   {
                     this.state.carouselPreviewImages.map((carouselPreviewImage) =>
-                      this.getCarouselImagePreviewItem(carouselPreviewImage.title)
+                      this.getCarouselImagePreviewItem(carouselPreviewImage)
                     )
                   }
                 </Col>
