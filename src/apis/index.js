@@ -30,12 +30,17 @@ export default {
     }
   },
 
-  async getPhotos(topic) {
+  async getPhotos(topic, page) {
     try {
       const axiosInstance = axios.create({ baseURL: constants.UNSPLASH.SERVER_URL });
       const res = (await axiosInstance.get(
         `/topics/${topic}/photos`,
-        { headers: { Authorization: constants.UNSPLASH.KEY } }
+        {
+          headers: { Authorization: constants.UNSPLASH.KEY },
+          params: {
+            page: page ?? 1
+          }
+        }
       )).data;
       return res;
     } catch (err) {

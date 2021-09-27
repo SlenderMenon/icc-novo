@@ -104,7 +104,7 @@ export class Content extends React.Component {
         <div className="carousel-preview-image" data-image={carouselImage.asJSONString()}>
           <img src={carouselImage.url} data-image={carouselImage.asJSONString()}></img>
         </div>
-        <h7 className="carousel-preview-image-title" data-image={carouselImage.asJSONString()}>{carouselImage.title}</h7>
+        <h7 className="carousel-preview-image-title text-center" data-image={carouselImage.asJSONString()}>{carouselImage.title}</h7>
       </div>
     )
   }
@@ -127,7 +127,7 @@ export class Content extends React.Component {
     this.setState({ dropdownSelected: count ? topic : 'Select Topic' });
 
     // call unplash for list of images
-    const unsplashPhotos = await services.getPhotos(topic);
+    const unsplashPhotos = await this.getUnsplashPhotos(topic, count);
     const fileList = unsplashPhotos.map((photo, i) => new Image(`${topic}-${i + 1}`, photo.urls.small));
     const fileListLastIndexInCarousel = fileList.length >= constants.DEFAULT_CAROUSEL_IMAGE_COUNT ? 8 : fileList.length;
     const carouselPreviewImages = fileList.slice(0, fileListLastIndexInCarousel);
@@ -138,6 +138,14 @@ export class Content extends React.Component {
       fileList,
       carouselPreviewImages
     });
+  }
+
+  async getUnsplashPhotos(topic, count) {
+    let photos = [];
+    for (let i = 1; true; i++) {
+      photos.push(...await services.getPhotos(topic, i));
+      if (photos.length >= count) return photos.splice(0, count);
+    }
   }
 
   async componentDidMount() {
