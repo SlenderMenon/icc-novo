@@ -1,4 +1,5 @@
 const http = require('http');
+const url = require('url');
 
 const hostname = '127.0.0.1';
 const port = 8081;
@@ -14,7 +15,17 @@ const topics = {
 const server = http.createServer((req, res) => {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
-  res.end(JSON.stringify(topics));
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  const urlObj = url.parse(req.url, true);
+  switch (urlObj.pathname) {
+    case '/topics': res.end(JSON.stringify(Object.keys(topics))); break;
+    case '/count':
+      if (urlObj.query.topic)
+        res.end(JSON.stringify(topics[urlObj.query.topic]));
+      else res.end(JSON.stringify({ error: 'No such topic!' }));
+      break;
+    default: res.end(JSON.stringify({ error: 'No such path!' }));
+  }
 });
 
 server.listen(port, hostname, () => {
