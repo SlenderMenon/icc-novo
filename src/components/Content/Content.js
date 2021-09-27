@@ -26,19 +26,9 @@ export class Content extends React.Component {
     this.state = {
       topics: [],
       dropdownSelected: 'Select Topic',
-      fileList: [
-        new Image('Landscape-1.png', 'zxd'),
-        new Image('Landscape-2.png', 'dsa'),
-        new Image('Landscape-3.png', 'rer'),
-        new Image('Landscape-4.png', 'ggg'),
-        new Image('Landscape-5.png', 'hgt'),
-        new Image('Landscape-6.png', 'sdf'),
-        new Image('Landscape-7.png', 'lkj'),
-        new Image('Landscape-8.png', 'uio'),
-        new Image('Landscape-9.png', 'cvb'),
-        new Image('Landscape-10.png', 'rfg')
-      ],
+      fileList: [],
       carouselPreviewImages: [],
+      unsplashPhotos: []
     }
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -82,12 +72,12 @@ export class Content extends React.Component {
     // add draggable to the file-list
     Array.from(document.getElementsByClassName('list-group-item')).forEach((listGroupItem) => {
       listGroupItem.addEventListener("dragstart", (ev) => {
-        // console.log('TARGET', ev, ev.target.attributes['data-url'].value);
+        const topic = ev.target.innerText;
         ev.dataTransfer.setData("application/json", JSON.stringify({
-          image: new Image(ev.target.innerText, ev.target.attributes['data-url'].value),
+          image: Image.fromJSON(ev.target.attributes['data-image'].value),
           source: DRAGGABLE_TYPES.LEFT_PANE
         }));
-        console.log(ev.target.innerText);
+        console.log(topic);
       });
     });
   }
@@ -96,9 +86,9 @@ export class Content extends React.Component {
     // add draggable to the carousel-picker
     Array.from(document.getElementsByClassName('carousel-preview-container')).forEach((carouselPreviewItem) => {
       carouselPreviewItem.addEventListener("dragstart", (ev) => {
-        // console.log('TARGET', ev, ev.target);
+        console.log('TARGET', ev, ev.target, ev.target.attributes['data-image'].value);
         ev.dataTransfer.setData("application/json", JSON.stringify({
-          image: new Image(ev.srcElement.children[1].innerText, ev.target.attributes['data-url'].value),
+          image: Image.fromJSON(ev.target.attributes['data-image'].value),
           source: DRAGGABLE_TYPES.RIGHT_PANE
         }));
       });
@@ -107,9 +97,11 @@ export class Content extends React.Component {
 
   getCarouselImagePreviewItem(carouselImage) {
     return (
-      <div className="carousel-preview-container" draggable="true" data-url={carouselImage.url}>
-        <div className="carousel-preview-image"></div>
-        <h7 className="carousel-preview-image-title">{carouselImage.title}</h7>
+      <div className="carousel-preview-container" draggable="true" data-image={carouselImage.asJSONString()}>
+        <div className="carousel-preview-image" data-image={carouselImage.asJSONString()}>
+          <img src={carouselImage.url} data-image={carouselImage.asJSONString()}></img>
+        </div>
+        <h7 className="carousel-preview-image-title" data-image={carouselImage.asJSONString()}>{carouselImage.title}</h7>
       </div>
     )
   }
@@ -127,10 +119,18 @@ export class Content extends React.Component {
 
   handleDropdownClick = async (ev) => {
     this.setState({ dropdownSelected: '...' });
-    const count = await services.getCount(ev.target.innerText);
-    this.setState({ dropdownSelected: count ? ev.target.innerText : 'Select Topic' });
+    const topic = ev.target.innerText;
+    const count = await services.getCount(topic);
+    this.setState({ dropdownSelected: count ? topic : 'Select Topic' });
 
     // call unplash for list of images
+    const unsplashPhotos = await services.getPhotos(topic);
+    const fileList = unsplashPhotos.map((photo, i) => new Image(`${topic}-${i+1}`, photo.urls.regular));
+    console.log(fileList);
+    if (unsplashPhotos) this.setState({
+      unsplashPhotos,
+      fileList
+    });
   }
 
   async componentDidMount() {
@@ -179,7 +179,7 @@ export class Content extends React.Component {
                 <ListGroup onDragOver={this.dragOver} onDrop={this.dropOverFilePicker}>
                   {
                     this.state.fileList.map((imageFile) =>
-                      <ListGroup.Item draggable="true" data-url={imageFile.url}>{imageFile.title}</ListGroup.Item>
+                      <ListGroup.Item draggable="true" data-image={imageFile.asJSONString()}>{imageFile.title}</ListGroup.Item>
                     )
                   }
                 </ListGroup>

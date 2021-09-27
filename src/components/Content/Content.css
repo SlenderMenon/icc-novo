@@ -40,7 +40,12 @@
 }
 
 .carousel-preview-image {
-  background-color: palevioletred;
+  /* background-color: palevioletred; */
   width: 8rem;
   height: 8rem;
+}
+
+.carousel-preview-image > img {
+  width: 100%;
+  height: 100%;
 }
