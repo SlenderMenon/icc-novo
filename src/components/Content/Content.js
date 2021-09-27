@@ -125,7 +125,7 @@ export class Content extends React.Component {
 
     // call unplash for list of images
     const unsplashPhotos = await services.getPhotos(topic);
-    const fileList = unsplashPhotos.map((photo, i) => new Image(`${topic}-${i+1}`, photo.urls.regular));
+    const fileList = unsplashPhotos.map((photo, i) => new Image(`${topic}-${i + 1}`, photo.urls.small));
     console.log(fileList);
     if (unsplashPhotos) this.setState({
       unsplashPhotos,
@@ -191,42 +191,21 @@ export class Content extends React.Component {
 
               <Row className="carousel-container">
                 <Col>
-                  <Carousel variant="dark" className="carousel-element">
-                    <Carousel.Item>
-                      <img
-                        className="d-block w-100"
-                        src="holder.js/800x400?text=First slide&bg=373940"
-                        alt="First slide"
-                      />
-                      <Carousel.Caption>
+                  <Carousel variant="dark" className="carousel-element" interval={null}>
+                    {
+                      this.state.carouselPreviewImages.map((carouselImage) =>
+                        <Carousel.Item>
+                          <img
+                            className="carousel-image img-responsive"
+                            src={carouselImage.url}
+                            alt={carouselImage.title}
+                          />
+                          {/* <Carousel.Caption>
                         <h3>First slide label</h3>
                         <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
-                      </Carousel.Caption>
-                    </Carousel.Item>
-                    <Carousel.Item>
-                      <img
-                        className="d-block w-100"
-                        src="holder.js/800x400?text=Second slide&bg=282c34"
-                        alt="Second slide"
-                      />
-
-                      <Carousel.Caption>
-                        <h3>Second slide label</h3>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                      </Carousel.Caption>
-                    </Carousel.Item>
-                    <Carousel.Item>
-                      <img
-                        className="d-block w-100"
-                        src="holder.js/800x400?text=Third slide&bg=20232a"
-                        alt="Third slide"
-                      />
-
-                      <Carousel.Caption>
-                        <h3>Third slide label</h3>
-                        <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur.</p>
-                      </Carousel.Caption>
-                    </Carousel.Item>
+                      </Carousel.Caption> */}
+                        </Carousel.Item>)
+                    }
                   </Carousel>
                 </Col>
               </Row>

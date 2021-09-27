@@ -41,11 +41,17 @@
 
 .carousel-preview-image {
   /* background-color: palevioletred; */
-  width: 8rem;
-  height: 8rem;
+  width: 6rem;
+  height: 6rem;
 }
 
 .carousel-preview-image > img {
   width: 100%;
   height: 100%;
+}
+
+.carousel-image {
+  width: 100%;
+  height: 80vh;
+  object-fit: scale-down;
 }
