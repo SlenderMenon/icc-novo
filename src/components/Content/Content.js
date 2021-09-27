@@ -47,7 +47,7 @@ export class Content extends React.Component {
     ev.preventDefault();
     console.log(ev.dataTransfer.getData("application/json"));
     const data = JSON.parse(ev.dataTransfer.getData("application/json"));
-    if (data.source !== DRAGGABLE_TYPES.RIGHT_PANE) {
+    if (data.source !== DRAGGABLE_TYPES.RIGHT_PANE || this.state.carouselPreviewImages.length === 1) {
       console.log('Cannot drop here!');  // @TODO set error status
       return;
     }
