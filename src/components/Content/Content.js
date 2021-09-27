@@ -53,9 +53,9 @@ export class Content extends React.Component {
       console.log('Cannot drop here!');  // @TODO set error status
       return;
     }
-    const { fileList } = this.state;
-    fileList.push(new Image(data.image.title, data.image.url));
-    this.setState({ fileList });
+    const { fileList, carouselPreviewImages } = this.state;
+    this.updateList(fileList, carouselPreviewImages, new Image(data.image.title, data.image.url));
+    this.setState({ fileList, carouselPreviewImages });
     console.log('STATE UPDATED!', this.state.fileList);
   }
 
@@ -67,9 +67,9 @@ export class Content extends React.Component {
       console.log('Cannot drop here!');  // @TODO set error status
       return;
     }
-    const { carouselPreviewImages } = this.state;
-    carouselPreviewImages.push(new Image(data.image.title, data.image.url));
-    this.setState({ carouselPreviewImages });
+    const { fileList, carouselPreviewImages } = this.state;
+    this.updateList(carouselPreviewImages, fileList, new Image(data.image.title, data.image.url));
+    this.setState({ fileList, carouselPreviewImages });
     console.log('STATE UPDATED!', this.state.carouselPreviewImages);
   }
 
@@ -107,6 +107,17 @@ export class Content extends React.Component {
         <h7 className="carousel-preview-image-title">{carouselImage.title}</h7>
       </div>
     )
+  }
+
+  updateList(list, srcList, image) {
+    let thisImageDoesExist = list.find((val) => (val.url === image.url));
+    if (thisImageDoesExist) {
+      console.log('This is a duplicate!');  // @TODO wrap into error
+    } else {
+      list.push(image);
+      thisImageDoesExist = srcList.find((val) => (val.url === image.url));
+      if (thisImageDoesExist) srcList.splice(srcList.indexOf(thisImageDoesExist), 1);
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
