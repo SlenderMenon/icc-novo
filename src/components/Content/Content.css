@@ -4,8 +4,43 @@
 
 .left-pane {
   padding: 2rem;
+  border-right: 1px solid lightgray;
 }
 
 .left-pane > div:nth-child(n + 2) {
   margin-top: 2rem;
+}
+
+.carousel-container {
+  height: 80%;
+}
+
+.carousel-element {
+  height: 100%;
+}
+
+.carousel-images-container {
+  height: 20%;
+  border-top: 1px solid lightgray;
+}
+
+.carousel-images-container > .col {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  overflow-x: auto;
+}
+
+.carousel-preview-container {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel-preview-image {
+  background-color: palevioletred;
+  width: 8rem;
+  height: 8rem;
 }
