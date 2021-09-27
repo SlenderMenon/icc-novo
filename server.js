@@ -6,10 +6,16 @@ const port = 8081;
 
 // unsplash topics
 const topics = {
-  nature: 10,
-  architecture: 12,
-  "food-drink": 20,
-  people: 3
+  "back-to-school": 12,
+  "wallpapers": 7,
+  "nature": 15,
+  "people": 9,
+  "experimental": 26,
+  "architecture": 12,
+  "business-work": 8,
+  "current-events": 5,
+  "fashion": 15,
+  "food-drink": 10,
 }
 
 const server = http.createServer((req, res) => {
