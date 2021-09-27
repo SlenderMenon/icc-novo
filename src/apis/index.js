@@ -11,7 +11,8 @@ export default {
       const res = (await axiosInstance.get('/topics')).data;
       return res;
     } catch (err) {
-      console.log('Error in API call with local server: ', err);  // @TODO wrap in error object
+      console.log('Error in API call with local server: ', err);
+      this.props.setMessage('error', `Error getting topics.`);
       return null;
     }
   },
@@ -25,7 +26,8 @@ export default {
       )).data;
       return res;
     } catch (err) {
-      console.log('Error in API call with local server: ', err);  // @TODO wrap in error object
+      console.log('Error in API call with local server: ', err);
+      this.props.setMessage('error', `Error getting count of "${topic}".`);
       return null;
     }
   },
@@ -44,7 +46,8 @@ export default {
       )).data;
       return res;
     } catch (err) {
-      console.log('Error in API call with local server: ', err);  // @TODO wrap in error object
+      console.log('Error in API call with local server: ', err);
+      this.props.setMessage('error', `Error getting images from Unsplash.`);
       return null;
     }
   }

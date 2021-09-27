@@ -47,14 +47,18 @@ export class Content extends React.Component {
     ev.preventDefault();
     console.log(ev.dataTransfer.getData("application/json"));
     const data = JSON.parse(ev.dataTransfer.getData("application/json"));
-    if (data.source !== DRAGGABLE_TYPES.RIGHT_PANE || this.state.carouselPreviewImages.length === 1) {
-      console.log('Cannot drop here!');  // @TODO set error status
+    const isSourceNotRightPane = data.source !== DRAGGABLE_TYPES.RIGHT_PANE;
+    const isThisLastImageInCarousel = this.state.carouselPreviewImages.length === 1;
+    if (isSourceNotRightPane || isThisLastImageInCarousel) {
+      this.props.setMessage('error',  isSourceNotRightPane
+        ? `Cannot drop image here.`
+        : `This is the last image in the carousel.`);
       return;
     }
     const { fileList, carouselPreviewImages } = this.state;
     this.updateList(fileList, carouselPreviewImages, new Image(data.image.title, data.image.url));
     this.setState({ fileList, carouselPreviewImages });
-    console.log('STATE UPDATED!', this.state.fileList);
+    this.props.setMessage('success', `"${data.image.title}" image was removed from the carouseel.`);
   }
 
   dropOverCarouselPicker = (ev) => {
@@ -62,13 +66,13 @@ export class Content extends React.Component {
     console.log(ev.dataTransfer.getData("application/json"));
     const data = JSON.parse(ev.dataTransfer.getData("application/json"));
     if (data.source !== DRAGGABLE_TYPES.LEFT_PANE) {
-      console.log('Cannot drop here!');  // @TODO set error status
+      this.props.setMessage('error', `Cannot drop image here.`);
       return;
     }
     const { fileList, carouselPreviewImages } = this.state;
     this.updateList(carouselPreviewImages, fileList, new Image(data.image.title, data.image.url));
     this.setState({ fileList, carouselPreviewImages });
-    console.log('STATE UPDATED!', this.state.carouselPreviewImages);
+    this.props.setMessage('success', `"${data.image.title}" image was added to the carousel.`);
   }
 
   addDraggableListenerToFileList() {
@@ -123,10 +127,17 @@ export class Content extends React.Component {
   handleDropdownClick = async (ev) => {
     this.setState({ dropdownSelected: '...' });
     const topic = ev.target.innerText;
+    this.props.setMessage('info', `Loading count ...`);
     const count = await services.getCount(topic);
-    this.setState({ dropdownSelected: count ? topic : 'Select Topic' });
+    if (!count) {
+      this.setState({ dropdownSelected: 'Select Topic' });
+      return;
+    }
+    this.props.setMessage('success', `Got count of images in "${topic}".`);
+    this.setState({ dropdownSelected: topic });
 
     // call unplash for list of images
+    this.props.setMessage('info', `Loading images from Unsplash ...`);
     const unsplashPhotos = await this.getUnsplashPhotos(topic, count);
     const fileList = unsplashPhotos.map((photo, i) => new Image(`${topic}-${i + 1}`, photo.urls.small));
     const fileListLastIndexInCarousel = fileList.length >= constants.DEFAULT_CAROUSEL_IMAGE_COUNT ? 8 : fileList.length;
@@ -138,6 +149,7 @@ export class Content extends React.Component {
       fileList,
       carouselPreviewImages
     });
+    this.props.setMessage('success', `Got ${count} images from Unsplash for "${topic}".`);
   }
 
   async getUnsplashPhotos(topic, count) {
@@ -150,7 +162,10 @@ export class Content extends React.Component {
 
   async componentDidMount() {
     const topics = await services.getTopics();
-    if (topics) this.setState({ topics });
+    if (topics) {
+      this.setState({ topics });
+      this.props.setMessage('success', `Got list of categories.`);
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
