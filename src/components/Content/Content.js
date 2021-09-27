@@ -13,6 +13,9 @@ import services from '../../apis';
 // models
 import Image from '../../models/image';
 
+// utilities
+import constants from '../../constants';
+
 // variables
 const DRAGGABLE_TYPES = {
   LEFT_PANE: 'left-pane-draggable',
@@ -126,10 +129,14 @@ export class Content extends React.Component {
     // call unplash for list of images
     const unsplashPhotos = await services.getPhotos(topic);
     const fileList = unsplashPhotos.map((photo, i) => new Image(`${topic}-${i + 1}`, photo.urls.small));
+    const fileListLastIndexInCarousel = fileList.length >= constants.DEFAULT_CAROUSEL_IMAGE_COUNT ? 8 : fileList.length;
+    const carouselPreviewImages = fileList.slice(0, fileListLastIndexInCarousel);
+    fileList.splice(0, fileListLastIndexInCarousel);
     console.log(fileList);
     if (unsplashPhotos) this.setState({
       unsplashPhotos,
-      fileList
+      fileList,
+      carouselPreviewImages
     });
   }
 
