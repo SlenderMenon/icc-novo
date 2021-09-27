@@ -1,0 +1,11 @@
+.pane-container {
+  height: 100vh;
+}
+
+.left-pane {
+  padding: 2rem;
+}
+
+.left-pane > div:nth-child(n + 2) {
+  margin-top: 2rem;
+}
