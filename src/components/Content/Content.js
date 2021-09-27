@@ -189,9 +189,9 @@ export class Content extends React.Component {
                 </Dropdown>
               </div>
 
-              <div className="file-list-container">
+              <div className="file-list-container" onDragOver={this.dragOver} onDrop={this.dropOverFilePicker}>
                 <h6>Files</h6>
-                <ListGroup onDragOver={this.dragOver} onDrop={this.dropOverFilePicker}>
+                <ListGroup>
                   {
                     this.state.fileList.map((imageFile) =>
                       <ListGroup.Item draggable="true" data-image={imageFile.asJSONString()}>{imageFile.title}</ListGroup.Item>
