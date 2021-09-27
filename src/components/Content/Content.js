@@ -1,10 +1,14 @@
 import React from 'react';
+import axios from 'axios';
 
 // bootstrap
 import { Container, Row, Col, Dropdown, ListGroup, Carousel } from '../../styles';
 
 // styling
 import './Content.css';
+
+// services
+import services from '../../apis';
 
 // models
 import Image from '../../models/image';
@@ -20,6 +24,7 @@ export class Content extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      topics: [],
       dropdownSelected: 'Select Topic',
       fileList: [
         new Image('Landscape-1.png', 'zxd'),
@@ -120,9 +125,22 @@ export class Content extends React.Component {
     }
   }
 
+  handleDropdownClick = async (ev) => {
+    this.setState({ dropdownSelected: '...' });
+    const count = await services.getCount(ev.target.innerText);
+    this.setState({ dropdownSelected: count ? ev.target.innerText : 'Select Topic' });
+
+    // call unplash for list of images
+  }
+
+  async componentDidMount() {
+    const topics = await services.getTopics();
+    if (topics) this.setState({ topics });
+  }
+
   componentDidUpdate(prevProps, prevState) {
     const { prevFileList, prevCarouselPreviewImages } = prevState;
-    const { fileList, carouselPreviewImages } = this.state;    
+    const { fileList, carouselPreviewImages } = this.state;
     if (!prevFileList && fileList || fileList.length !== prevFileList.length) this.addDraggableListenerToFileList();
     if (!prevCarouselPreviewImages && carouselPreviewImages || prevCarouselPreviewImages.length !== carouselPreviewImages.length) this.addDraggableListenerToCarouselPicker();
   }
@@ -144,9 +162,14 @@ export class Content extends React.Component {
                     {this.state.dropdownSelected}
                   </Dropdown.Toggle>
                   <Dropdown.Menu>
-                    <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
+                    {
+                      this.state.topics.map((topic) =>
+                        <Dropdown.Item href="#" onClick={this.handleDropdownClick}>{topic}</Dropdown.Item>
+                      )
+                    }
+                    {/* <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
                     <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
-                    <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
+                    <Dropdown.Item href="#/action-3">Something else</Dropdown.Item> */}
                   </Dropdown.Menu>
                 </Dropdown>
               </div>
@@ -168,7 +191,7 @@ export class Content extends React.Component {
 
               <Row className="carousel-container">
                 <Col>
-                  <Carousel className="carousel-element">
+                  <Carousel variant="dark" className="carousel-element">
                     <Carousel.Item>
                       <img
                         className="d-block w-100"
