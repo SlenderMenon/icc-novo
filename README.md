@@ -1,70 +1,36 @@
-# Getting Started with Create React App
+# Novolytics Assignment
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+_This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app)._
 
-## Available Scripts
+## Introduction
 
-In the project directory, you can run:
+This web project is an assignment for an employment opportunity in Novolytics. The project comprises of a React website, a Node.js backend and a few Shell scripts to facilitate easy setup and execution of the project.
 
-### `yarn start`
+## Pre-requisites
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Since this is a web project, you require the following to be installed:
+- Node.js
+- `npm` package manager
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Let's run!
 
-### `yarn test`
+All steps assume you're on a Linux environment. On some Linux desktop environments like KDE, simply double-tapping the `.sh` files will execute it. In other cases, please open a terminal in the repo directory and do as follows:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- `chmod +x my-favorite-script.sh`
+- `./my-favorite-script.sh`
 
-### `yarn build`
+_**Note:** All references to "open a terminal" assume you do so inside the repo directory._
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### The Linux way
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- If it's the first time you've cloned this repository onto your machine, please execute `setup.sh` which will install `npm` dependencies
+- To start the server, please execute `run-server.sh`
+- To start the web front-end, please execute `run-web.sh`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### The `npm` way
 
-### `yarn eject`
+- If it's the first time you've cloned this repository onto your machine, please open a terminal and `npm i`
+- To start the server, please `node server.js`
+- To start the web front-end, please `npm start`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+In both cases, if all goes well, at this point you'd be re-directed to your default browser.
