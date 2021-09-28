@@ -14,7 +14,7 @@ Since this is a web project, you require the following to be installed:
 
 ## Let's run!
 
-All steps assume you're on a Linux environment. On some Linux desktop environments like KDE, simply double-tapping the `.sh` files will execute it. In other cases, please open a terminal in the repo directory and do as follows:
+All steps assume you're on a Linux environment. On some Linux desktop environments like KDE, simply double-tapping the `.sh` files will execute it. In other cases, please open a terminal and do as follows:
 
 - `chmod +x my-favorite-script.sh`
 - `./my-favorite-script.sh`
