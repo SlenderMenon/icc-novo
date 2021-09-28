@@ -43,7 +43,7 @@ export class Home extends React.Component {
   render() {
     return (
       <div className="home-component">
-        <Titlebar setMessage={this.setMessage} setCarouselConfig={this.setCarouselConfig} />
+        <Titlebar setMessage={this.setMessage} carouselConfig={this.state.carouselConfig} setCarouselConfig={this.setCarouselConfig} />
         <Content setMessage={this.setMessage} carouselConfig={this.state.carouselConfig} setCarouselConfig={this.setCarouselConfig} forceReRender={this.state.forceReRender} />
         <Message message={this.state.message} />
       </div>

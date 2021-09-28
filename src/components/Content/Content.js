@@ -56,7 +56,7 @@ export class Content extends React.Component {
     }
     const { fileList, carouselPreviewImages } = this.state;
     this.updateList(fileList, carouselPreviewImages, new Image(data.image.title, data.image.url));
-    this.setState({ fileList, carouselPreviewImages });
+    this.setState({ fileList, carouselPreviewImages }, () => { this.cacheCarouselConfig(); });
     this.props.setMessage('success', `"${data.image.title}" image was removed from the carouseel.`);
   }
 
@@ -143,7 +143,7 @@ handleDropdownClick = async (ev) => {
     unsplashPhotos,
     fileList,
     carouselPreviewImages
-  });
+  }, () => { this.cacheCarouselConfig(); });
   this.props.setMessage('success', `Got ${count} images from Unsplash for "${topic}".`);
 }
 
