@@ -161,7 +161,7 @@ export class Content extends React.Component {
   }
 
   cacheCarouselConfig = () => {
-    this.props.setCarouselConfig(this.carouselPreviewImages.map((carouselPreviewImage) => ({
+    this.props.setCarouselConfig(this.state.carouselPreviewImages.map((carouselPreviewImage) => ({
       title: carouselPreviewImage.title,
       url: carouselPreviewImage.url
     })));
@@ -184,7 +184,7 @@ export class Content extends React.Component {
       this.setState({
         carouselPreviewImages: this.props.carouselConfig.map((config) => new Image(config.title, config.url))
       }, () => {
-        // this.cacheCarouselConfig();
+        this.cacheCarouselConfig();
         this.props.setMessage('success', `Loaded carousel configuration from file.`);
       });
     }
