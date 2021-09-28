@@ -50,7 +50,7 @@ export class Content extends React.Component {
     const isSourceNotRightPane = data.source !== DRAGGABLE_TYPES.RIGHT_PANE;
     const isThisLastImageInCarousel = this.state.carouselPreviewImages.length === 1;
     if (isSourceNotRightPane || isThisLastImageInCarousel) {
-      this.props.setMessage('error',  isSourceNotRightPane
+      this.props.setMessage('error', isSourceNotRightPane
         ? `Cannot drop image here.`
         : `This is the last image in the carousel.`);
       return;
@@ -71,7 +71,7 @@ export class Content extends React.Component {
     }
     const { fileList, carouselPreviewImages } = this.state;
     this.updateList(carouselPreviewImages, fileList, new Image(data.image.title, data.image.url));
-    this.setState({ fileList, carouselPreviewImages });
+    this.setState({ fileList, carouselPreviewImages }, () => { this.cacheCarouselConfig(); });
     this.props.setMessage('success', `"${data.image.title}" image was added to the carousel.`);
   }
 
@@ -160,6 +160,13 @@ export class Content extends React.Component {
     }
   }
 
+  cacheCarouselConfig = () => {
+    this.props.setCarouselConfig(this.carouselPreviewImages.map((carouselPreviewImage) => ({
+      title: carouselPreviewImage.title,
+      url: carouselPreviewImage.url
+    })));
+  }
+
   async componentDidMount() {
     const topics = await services.getTopics();
     if (topics) {
@@ -173,6 +180,14 @@ export class Content extends React.Component {
     const { fileList, carouselPreviewImages } = this.state;
     if (!prevFileList && fileList || fileList.length !== prevFileList.length) this.addDraggableListenerToFileList();
     if (!prevCarouselPreviewImages && carouselPreviewImages || prevCarouselPreviewImages.length !== carouselPreviewImages.length) this.addDraggableListenerToCarouselPicker();
+    if (prevProps.forceReRender !== this.props.forceReRender) {
+      this.setState({
+        carouselPreviewImages: this.props.carouselConfig.map((config) => new Image(config.title, config.url))
+      }, () => {
+        // this.cacheCarouselConfig();
+        this.props.setMessage('success', `Loaded carousel configuration from file.`);
+      });
+    }
   }
 
   render() {
