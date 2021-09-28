@@ -11,6 +11,11 @@
   margin-top: 2rem;
 }
 
+.file-list-container {
+  height: 60%;
+  overflow-y: auto;
+}
+
 .carousel-container {
   height: 80%;
 }
