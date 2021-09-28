@@ -45,7 +45,6 @@ export class Content extends React.Component {
 
   dropOverFilePicker = (ev) => {
     ev.preventDefault();
-    console.log(ev.dataTransfer.getData("application/json"));
     const data = JSON.parse(ev.dataTransfer.getData("application/json"));
     const isSourceNotRightPane = data.source !== DRAGGABLE_TYPES.RIGHT_PANE;
     const isThisLastImageInCarousel = this.state.carouselPreviewImages.length === 1;
@@ -63,7 +62,6 @@ export class Content extends React.Component {
 
   dropOverCarouselPicker = (ev) => {
     ev.preventDefault();
-    console.log(ev.dataTransfer.getData("application/json"));
     const data = JSON.parse(ev.dataTransfer.getData("application/json"));
     if (data.source !== DRAGGABLE_TYPES.LEFT_PANE) {
       this.props.setMessage('error', `Cannot drop image here.`);
@@ -84,196 +82,193 @@ export class Content extends React.Component {
           image: Image.fromJSON(ev.target.attributes['data-image'].value),
           source: DRAGGABLE_TYPES.LEFT_PANE
         }));
-        console.log(topic);
-      });
     });
-  }
+  });
+}
 
-  addDraggableListenerToCarouselPicker() {
-    // add draggable to the carousel-picker
-    Array.from(document.getElementsByClassName('carousel-preview-container')).forEach((carouselPreviewItem) => {
-      carouselPreviewItem.addEventListener("dragstart", (ev) => {
-        console.log('TARGET', ev, ev.target, ev.target.attributes['data-image'].value);
-        ev.dataTransfer.setData("application/json", JSON.stringify({
-          image: Image.fromJSON(ev.target.attributes['data-image'].value),
-          source: DRAGGABLE_TYPES.RIGHT_PANE
-        }));
-      });
+addDraggableListenerToCarouselPicker() {
+  // add draggable to the carousel-picker
+  Array.from(document.getElementsByClassName('carousel-preview-container')).forEach((carouselPreviewItem) => {
+    carouselPreviewItem.addEventListener("dragstart", (ev) => {
+      ev.dataTransfer.setData("application/json", JSON.stringify({
+        image: Image.fromJSON(ev.target.attributes['data-image'].value),
+        source: DRAGGABLE_TYPES.RIGHT_PANE
+      }));
     });
-  }
+  });
+}
 
-  getCarouselImagePreviewItem(carouselImage) {
-    return (
-      <div className="carousel-preview-container" draggable="true" data-image={carouselImage.asJSONString()}>
-        <div className="carousel-preview-image" data-image={carouselImage.asJSONString()}>
-          <img src={carouselImage.url} data-image={carouselImage.asJSONString()}></img>
-        </div>
-        <h7 className="carousel-preview-image-title text-center" data-image={carouselImage.asJSONString()}>{carouselImage.title}</h7>
+getCarouselImagePreviewItem(carouselImage) {
+  return (
+    <div className="carousel-preview-container" draggable="true" data-image={carouselImage.asJSONString()}>
+      <div className="carousel-preview-image" data-image={carouselImage.asJSONString()}>
+        <img src={carouselImage.url} data-image={carouselImage.asJSONString()}></img>
       </div>
-    )
+      <h7 className="carousel-preview-image-title text-center" data-image={carouselImage.asJSONString()}>{carouselImage.title}</h7>
+    </div>
+  )
+}
+
+updateList(list, srcList, image) {
+  let thisImageDoesExist = list.find((val) => (val.url === image.url));
+  if (thisImageDoesExist) {
+    console.log('This is a duplicate!');  // @TODO wrap into error
+  } else {
+    list.push(image);
+    thisImageDoesExist = srcList.find((val) => (val.url === image.url));
+    if (thisImageDoesExist) srcList.splice(srcList.indexOf(thisImageDoesExist), 1);
   }
+}
 
-  updateList(list, srcList, image) {
-    let thisImageDoesExist = list.find((val) => (val.url === image.url));
-    if (thisImageDoesExist) {
-      console.log('This is a duplicate!');  // @TODO wrap into error
-    } else {
-      list.push(image);
-      thisImageDoesExist = srcList.find((val) => (val.url === image.url));
-      if (thisImageDoesExist) srcList.splice(srcList.indexOf(thisImageDoesExist), 1);
-    }
+handleDropdownClick = async (ev) => {
+  this.setState({ dropdownSelected: '...' });
+  const topic = ev.target.innerText;
+  this.props.setMessage('info', `Loading count ...`);
+  const count = await services.getCount(topic);
+  if (!count) {
+    this.setState({ dropdownSelected: 'Select Topic' });
+    return;
   }
+  this.props.setMessage('success', `Got count of images in "${topic}".`);
+  this.setState({ dropdownSelected: topic });
 
-  handleDropdownClick = async (ev) => {
-    this.setState({ dropdownSelected: '...' });
-    const topic = ev.target.innerText;
-    this.props.setMessage('info', `Loading count ...`);
-    const count = await services.getCount(topic);
-    if (!count) {
-      this.setState({ dropdownSelected: 'Select Topic' });
-      return;
-    }
-    this.props.setMessage('success', `Got count of images in "${topic}".`);
-    this.setState({ dropdownSelected: topic });
+  // call unplash for list of images
+  this.props.setMessage('info', `Loading images from Unsplash ...`);
+  const unsplashPhotos = await this.getUnsplashPhotos(topic, count);
+  const fileList = unsplashPhotos.map((photo, i) => new Image(`${topic}-${i + 1}`, photo.urls.small));
+  const fileListLastIndexInCarousel = fileList.length >= constants.DEFAULT_CAROUSEL_IMAGE_COUNT ? 8 : fileList.length;
+  const carouselPreviewImages = fileList.slice(0, fileListLastIndexInCarousel);
+  fileList.splice(0, fileListLastIndexInCarousel);
+  if (unsplashPhotos) this.setState({
+    unsplashPhotos,
+    fileList,
+    carouselPreviewImages
+  });
+  this.props.setMessage('success', `Got ${count} images from Unsplash for "${topic}".`);
+}
 
-    // call unplash for list of images
-    this.props.setMessage('info', `Loading images from Unsplash ...`);
-    const unsplashPhotos = await this.getUnsplashPhotos(topic, count);
-    const fileList = unsplashPhotos.map((photo, i) => new Image(`${topic}-${i + 1}`, photo.urls.small));
-    const fileListLastIndexInCarousel = fileList.length >= constants.DEFAULT_CAROUSEL_IMAGE_COUNT ? 8 : fileList.length;
-    const carouselPreviewImages = fileList.slice(0, fileListLastIndexInCarousel);
-    fileList.splice(0, fileListLastIndexInCarousel);
-    console.log(fileList);
-    if (unsplashPhotos) this.setState({
-      unsplashPhotos,
-      fileList,
-      carouselPreviewImages
+async getUnsplashPhotos(topic, count) {
+  let photos = [];
+  for (let i = 1; true; i++) {
+    photos.push(...await services.getPhotos(topic, i));
+    if (photos.length >= count) return photos.splice(0, count);
+  }
+}
+
+cacheCarouselConfig = () => {
+  this.props.setCarouselConfig(this.state.carouselPreviewImages.map((carouselPreviewImage) => ({
+    title: carouselPreviewImage.title,
+    url: carouselPreviewImage.url
+  })));
+}
+
+async componentDidMount() {
+  const topics = await services.getTopics();
+  if (topics) {
+    this.setState({ topics });
+    this.props.setMessage('success', `Got list of categories.`);
+  }
+}
+
+componentDidUpdate(prevProps, prevState) {
+  const { prevFileList, prevCarouselPreviewImages } = prevState;
+  const { fileList, carouselPreviewImages } = this.state;
+  if (!prevFileList && fileList || fileList.length !== prevFileList.length) this.addDraggableListenerToFileList();
+  if (!prevCarouselPreviewImages && carouselPreviewImages || prevCarouselPreviewImages.length !== carouselPreviewImages.length) this.addDraggableListenerToCarouselPicker();
+  if (prevProps.forceReRender !== this.props.forceReRender) {
+    this.setState({
+      carouselPreviewImages: this.props.carouselConfig.map((config) => new Image(config.title, config.url))
+    }, () => {
+      this.cacheCarouselConfig();
+      this.props.setMessage('success', `Loaded carousel configuration from file.`);
     });
-    this.props.setMessage('success', `Got ${count} images from Unsplash for "${topic}".`);
   }
+}
 
-  async getUnsplashPhotos(topic, count) {
-    let photos = [];
-    for (let i = 1; true; i++) {
-      photos.push(...await services.getPhotos(topic, i));
-      if (photos.length >= count) return photos.splice(0, count);
-    }
-  }
+render() {
+  return (
+    <div className="content-component">
 
-  cacheCarouselConfig = () => {
-    this.props.setCarouselConfig(this.state.carouselPreviewImages.map((carouselPreviewImage) => ({
-      title: carouselPreviewImage.title,
-      url: carouselPreviewImage.url
-    })));
-  }
+      <Container fluid>
 
-  async componentDidMount() {
-    const topics = await services.getTopics();
-    if (topics) {
-      this.setState({ topics });
-      this.props.setMessage('success', `Got list of categories.`);
-    }
-  }
+        <Row className="pane-container">
 
-  componentDidUpdate(prevProps, prevState) {
-    const { prevFileList, prevCarouselPreviewImages } = prevState;
-    const { fileList, carouselPreviewImages } = this.state;
-    if (!prevFileList && fileList || fileList.length !== prevFileList.length) this.addDraggableListenerToFileList();
-    if (!prevCarouselPreviewImages && carouselPreviewImages || prevCarouselPreviewImages.length !== carouselPreviewImages.length) this.addDraggableListenerToCarouselPicker();
-    if (prevProps.forceReRender !== this.props.forceReRender) {
-      this.setState({
-        carouselPreviewImages: this.props.carouselConfig.map((config) => new Image(config.title, config.url))
-      }, () => {
-        this.cacheCarouselConfig();
-        this.props.setMessage('success', `Loaded carousel configuration from file.`);
-      });
-    }
-  }
+          <Col className="left-pane bg-light" lg="3">
 
-  render() {
-    return (
-      <div className="content-component">
-
-        <Container fluid>
-
-          <Row className="pane-container">
-
-            <Col className="left-pane bg-light" lg="3">
-
-              <div className="dropdown-container">
-                <h6>Categories</h6>
-                <Dropdown size="lg">
-                  <Dropdown.Toggle variant="primary" id="dropdown-basic">
-                    {this.state.dropdownSelected}
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu>
-                    {
-                      this.state.topics.map((topic) =>
-                        <Dropdown.Item href="#" onClick={this.handleDropdownClick}>{topic}</Dropdown.Item>
-                      )
-                    }
-                    {/* <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
-                    <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
-                    <Dropdown.Item href="#/action-3">Something else</Dropdown.Item> */}
-                  </Dropdown.Menu>
-                </Dropdown>
-              </div>
-
-              <div className="file-list-container" onDragOver={this.dragOver} onDrop={this.dropOverFilePicker}>
-                <h6>Files</h6>
-                <ListGroup>
+            <div className="dropdown-container">
+              <h6>Categories</h6>
+              <Dropdown size="lg">
+                <Dropdown.Toggle variant="primary" id="dropdown-basic">
+                  {this.state.dropdownSelected}
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
                   {
-                    this.state.fileList.map((imageFile) =>
-                      <ListGroup.Item draggable="true" data-image={imageFile.asJSONString()}>{imageFile.title}</ListGroup.Item>
+                    this.state.topics.map((topic) =>
+                      <Dropdown.Item href="#" onClick={this.handleDropdownClick}>{topic}</Dropdown.Item>
                     )
                   }
-                </ListGroup>
-              </div>
+                  {/* <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
+                    <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
+                    <Dropdown.Item href="#/action-3">Something else</Dropdown.Item> */}
+                </Dropdown.Menu>
+              </Dropdown>
+            </div>
 
-            </Col>
+            <div className="file-list-container" onDragOver={this.dragOver} onDrop={this.dropOverFilePicker}>
+              <h6>Files</h6>
+              <ListGroup>
+                {
+                  this.state.fileList.map((imageFile) =>
+                    <ListGroup.Item draggable="true" data-image={imageFile.asJSONString()}>{imageFile.title}</ListGroup.Item>
+                  )
+                }
+              </ListGroup>
+            </div>
 
-            <Col className="center-pane" lg="9">
+          </Col>
 
-              <Row className="carousel-container">
-                <Col>
-                  <Carousel variant="dark" className="carousel-element" interval={null}>
-                    {
-                      this.state.carouselPreviewImages.map((carouselImage) =>
-                        <Carousel.Item>
-                          <img
-                            className="carousel-image img-responsive"
-                            src={carouselImage.url}
-                            alt={carouselImage.title}
-                          />
-                          {/* <Carousel.Caption>
+          <Col className="center-pane" lg="9">
+
+            <Row className="carousel-container">
+              <Col>
+                <Carousel variant="dark" className="carousel-element" interval={null}>
+                  {
+                    this.state.carouselPreviewImages.map((carouselImage) =>
+                      <Carousel.Item>
+                        <img
+                          className="carousel-image img-responsive"
+                          src={carouselImage.url}
+                          alt={carouselImage.title}
+                        />
+                        {/* <Carousel.Caption>
                         <h3>First slide label</h3>
                         <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
                       </Carousel.Caption> */}
-                        </Carousel.Item>)
-                    }
-                  </Carousel>
-                </Col>
-              </Row>
-
-              <Row className="carousel-images-container bg-light">
-                <Col id="coursel-images-drop-container" onDragOver={this.dragOver} onDrop={this.dropOverCarouselPicker}>
-                  {
-                    this.state.carouselPreviewImages.map((carouselPreviewImage) =>
-                      this.getCarouselImagePreviewItem(carouselPreviewImage)
-                    )
+                      </Carousel.Item>)
                   }
-                </Col>
-              </Row>
+                </Carousel>
+              </Col>
+            </Row>
 
-            </Col>
+            <Row className="carousel-images-container bg-light">
+              <Col id="coursel-images-drop-container" onDragOver={this.dragOver} onDrop={this.dropOverCarouselPicker}>
+                {
+                  this.state.carouselPreviewImages.map((carouselPreviewImage) =>
+                    this.getCarouselImagePreviewItem(carouselPreviewImage)
+                  )
+                }
+              </Col>
+            </Row>
 
-          </Row>
+          </Col>
 
-        </Container>
+        </Row>
 
-      </div>
-    )
-  }
+      </Container>
+
+    </div>
+  )
+}
 }
 
 export default Content;
